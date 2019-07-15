@@ -7,18 +7,22 @@
 using namespace std;
 
 /*
-    Server:
-        socket -> bind -> listen -> accept(blocking, 3 handshake) -> send
-    Client:
-        socket -> connect(blocking, 3 handshake) -> rev
-*/
-/*
 readme:
+    This is cpp can only deal single user
+    TCP socket program
     exit:
         -1: the input format is error
          1: socket is error
          2: connect is error
 */
+
+/*
+    Server:
+        socket -> bind -> listen -> accept(blocking, 3 handshake) -> send
+    Client:
+        socket -> connect(blocking, 3 handshake) -> rev
+*/
+
 
 class Celient
 {
@@ -54,6 +58,18 @@ int main(int argc, char *argv[])
         fflush(stdout);
         char buf[1024];
         ssize_t s = read(0, buf, sizeof(buf) - 1);
+        if (s > 0)//read success
+        {
+            buf[s] = 0;
+        }
+        write(sock, buf, strlen(buf));
+        ssize_t _s = read(sock, buf, sizeof(buf) - 1);
+        if (_s > 0)
+        {
+            buf[_s - 1] = 0;
+            printf("Server echo # %s\n", buf);
+        }
     }
+    close(sock);
     return 0;
 }

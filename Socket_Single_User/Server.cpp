@@ -8,28 +8,31 @@
 using namespace std;
 
 /*
+readme:
+    This is cpp can only deal single user
+    TCP socket program
+    exit():
+        1: socket is error;
+        2: bind is error;
+        3: listen is error
+        4: accept is error
+*/
+
+/*
 server:
     socket -> bind -> listen -> accept(Blocking, Three-way handshake) -> send
 client:
     socket -> connect(Blocking, Three-way handshake) -> rcv
 */
 
-/*
-readme:
-    TCP socket program
-    exit():
-        1: socket is error;
-        2: bind is error;
-        3: listen is error
-*/
  class Server
  {
  public:
-    static int start_up(const string lock_ip, int local_port)
+    static int start_up(const char* local_ip, int local_port)
     {
         //1.create sock
         int sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock < 0) 
+        if (sock < 0)
         {
             perror("socket");
             close(sock);
@@ -45,7 +48,7 @@ readme:
         {
             perror("bind");
             close(sock);
-            exit();
+            exit(2);
         }
         //3.listen
         if (listen(sock, 10) < 0)
@@ -61,11 +64,11 @@ int main(int argc, char *argv[])//const char * type
 {
     if (argc < 3)
     {
-        printf("Input format error: %s IP PORT\n", argv[0]);
+        printf("The input format must be: %s [server-ip] [server-port]\n", argv[0]);
     }
     //build sock
     Server Socket;
-    Socket.start_up(argv[1], atoi(argv[2]));
+    int sock = Socket.start_up(argv[1], atoi(argv[2]));
     struct sockaddr_in client;
     socklen_t len = sizeof(client);
     while (1)
@@ -75,17 +78,18 @@ int main(int argc, char *argv[])//const char * type
         {
             perror("accept");
             close(sock);
-            return 1;
+            return 4;
         }
         printf("client_ip : %s, client_port : %d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
         char buf[1024];
         while (1)
         {
-            ssize_t s = read(new_sock, buf, sizeof(buf) - 1);
+            ssize_t s = read(new_sock, buf, sizeof(buf) - 1);//waiting for trigger, so use select only is inefficient
+            printf("t = %ld\n", s);
             if (s > 0)
             {
-                buf[s] = 0;//why is the assignment 0 here? 
-                printf("client say # %s", buf)
+                buf[s] = 0;//assignment 0 here to ensure end of s.
+                printf("client say # %s", buf);
             }
             else if (s == 0)
             {
