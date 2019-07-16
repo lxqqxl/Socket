@@ -10,6 +10,7 @@ using namespace std;
 /*
 readme:
     Muti_process TCP socket
+    Server.cpp
     exit:
         -1:The input format is error
          0:The program is normal
@@ -75,6 +76,51 @@ int main(int argc, char *argv[])
             perror("accept");
             exit(4);
         }
+        //add muti-process
+        pid_t id = fork();
+        if (id == 0) //child process
+        {
+            char buf[1024];
+            while (1)
+            {
+                ssize_t s = read(new_sock, buf, sizeof(buf) - 1);
+                if (s > 0)
+                {
+                    buf[s] = 0;
+                    printf("Client %s say #: %s\n", inet_ntoa(client.sin_addr), buf);
+                }
+                else if (s == 0)
+                {
+                    printf("Client quit!\n");
+                    break;
+                }
+            }
+        }
+        else if (id > 0) //father
+        {
+            pid_t _id = fork();
+            if (_id == 0) //child
+            {
+                continue;
+            }
+            else if (_id > 0)//father
+            {
+                close(new_sock);
+                exit(0);
+            }
+            else//error
+            {
+                break;
+            }
+            
+        }
+        else
+        {
+            perror("fork");
+            break;
+        }
+        
+/* 
         //output client information
         printf("Client_IP: %s, Client_PORT: %d", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
         //receive information
@@ -94,6 +140,7 @@ int main(int argc, char *argv[])
             }
             write(new_sock, buf, strlen(buf));
         }
+*/
     }
     close(sock);
     return 0;
