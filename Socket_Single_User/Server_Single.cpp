@@ -16,6 +16,7 @@ readme:
         2: bind is error;
         3: listen is error
         4: accept is error
+        5: setsockopt is error
 */
 
 /*
@@ -37,6 +38,13 @@ client:
             perror("socket");
             close(sock);
             exit(1);
+        }
+        //reconnectable for accidental disconnection
+        int opt = 1;
+        if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        {
+            perror("setsockopt");
+            exit(5);
         }
         //2.create bind
         struct sockaddr_in local;
@@ -85,7 +93,7 @@ int main(int argc, char *argv[])//const char * type
         while (1)
         {
             ssize_t s = read(new_sock, buf, sizeof(buf) - 1);//waiting for trigger, so use select only is inefficient
-            printf("t = %ld\n", s);
+            //printf("t = %ld\n", s);
             if (s > 0)
             {
                 buf[s] = 0;//assignment 0 here to ensure end of s.

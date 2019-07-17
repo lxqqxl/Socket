@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     }
     while (1)//due to muti-process, here add while(1), muti-pthread should add before
     {
-        printf("Please Entry #");
+        printf("Please Entry # ");
         fflush(stdout);
         char buf[1024];
         ssize_t s = read(0, buf, sizeof(buf) - 1);

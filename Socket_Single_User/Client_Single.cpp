@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
             buf[s] = 0;
         }
         write(sock, buf, strlen(buf));
+        //sleep(5);
         ssize_t _s = read(sock, buf, sizeof(buf) - 1);
         if (_s > 0)
         {
