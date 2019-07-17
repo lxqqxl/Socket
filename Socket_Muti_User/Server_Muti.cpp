@@ -18,6 +18,7 @@ readme:
          2:bind is error
          3:listen is error
          4:accept is error
+         5:setsockopt is error
 */
 
 /*
@@ -35,6 +36,13 @@ class Server
             {
                 perror("socket");
                 exit(1);
+            }
+            //reconnectable for accidental disconnection
+            int opt = 1;
+            if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+            {
+                perror("setsockopt");
+                exit(5);
             }
             //2.bind
             struct sockaddr_in local;
@@ -87,13 +95,14 @@ int main(int argc, char *argv[])
                 if (s > 0)
                 {
                     buf[s] = 0;
-                    printf("Client %s say #: %s\n", inet_ntoa(client.sin_addr), buf);
+                    printf("Client %s %d say #: %s\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port), buf);
                 }
                 else if (s == 0)
                 {
                     printf("Client quit!\n");
                     break;
                 }
+                write(new_sock, buf, strlen(buf));
             }
         }
         else if (id > 0) //father
