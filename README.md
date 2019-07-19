@@ -4,6 +4,8 @@
 
 ![](F:\Github\github\Socket\picture\Connected sockets and listening sockets..jpg)
 
+当连接建立以后，close(list_sock)不会出现传输数据中断，这是因为监听套接字只是相当于一个引导的作用，当建立连接以后数据的传输不需要经过监听套接字，就好比宾馆的迎宾一样，当你去宾馆的时候迎宾小姐叫一个指定的服务员引导你去相应的房间，这时候你和服务员就可以进行信息交互没必要和迎宾小姐再一次干预，迎宾小姐这时候去监听其他的响应。
+
 **单进程Socket编程：**
 
 server：socket -> bind(绑定地址) -> listen（监听） -> accept(blocking, 3 handshark) -> send
@@ -35,3 +37,4 @@ setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//int opt = 1;
 //on success, zero is returned. on error, -1 is returned
 ```
 
+**注意：**在使用setsockopt以后重新连接服务器仍然不会接受到数据，测试是在2019/7/17号
