@@ -17,6 +17,13 @@ readme:
 
 */
 
+struct parameter
+{
+    char *IP;
+    int PORT;
+    int sock;
+}HandleParameter;
+
 class Server
 {
     public:
@@ -56,6 +63,30 @@ class Server
         }
 };
 
+void* HandlerRequest(void* arg)
+{
+    parameter handleParameter = *((parameter *)arg);
+    char buf[10024];
+    //const char *msg =  "HTTP/1.0 200 OK <\r\n\r\n<html><h1>yingying beautiful</h1></html>\r\n";
+    while (1)
+    {
+        ssize_t s = read(handleParameter.sock, buf, sizeof(buf) - 1);
+        if (s > 0)
+        {
+            buf[s] = 0;
+            printf("Client %s %d Say # %s", handleParameter.IP, handleParameter.PORT, buf);
+            write(handleParameter.sock, buf, strlen(buf));
+            //break;
+        }
+        else if (s == 0)
+        {
+            printf("Client Quit!\n");
+            break;
+        }
+    }
+
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3)
@@ -69,6 +100,7 @@ int main(int argc, char *argv[])
     socklen_t len = sizeof(client);
     while (1)
     {
+        /*
         int newsock = accept(sock, (struct sockaddr *)&client, &len);
         if (newsock < 0)
         {
@@ -92,6 +124,24 @@ int main(int argc, char *argv[])
             }
             write(newsock, buf, strlen(buf));
         }
+        */
+       //Muti-Thread program
+        int new_sock = accept(sock, (struct sockaddr *)&client, &len);
+        if (new_sock < 0)
+        {
+            perror("accept");
+            exit(4);
+        }
+        printf("Client %s %d is connected\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+        pthread_t id;
+
+        //assign
+        HandleParameter.IP = inet_ntoa(client.sin_addr);
+        HandleParameter.PORT = ntohs(client.sin_port);
+        HandleParameter.sock = new_sock;
+
+        pthread_create(&id, NULL, HandlerRequest, (void *)&HandleParameter);//if success return 0, else return -1
+        pthread_detach(id);
     }
     close(sock);
     return 0;
