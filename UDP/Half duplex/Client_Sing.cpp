@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <netinet/in.h>
@@ -45,15 +44,16 @@ int main(int argc, char *argv[])
     {
         socklen_t len = sizeof(ser_addr);
         printf("Please Entry # ");
-        scanf("%s", buf);
-        int s = sendto(sock, buf, sizeof(buf), 0, (struct sockaddr *)&ser_addr, len);
+        //scanf("%s", buf);
+        fgets(buf, sizeof(buf), stdin);//  \n is also input, so if we input "xianqi Lu[enter]", the length is 10
+        int s = sendto(sock, buf, strlen(buf), 0, (struct sockaddr *)&ser_addr, len);
         if (s > 0)
         {
-            buf[s] = 0;
-            printf("Client Say # %s\n", buf);
+            //buf[s] = 0;
+            printf("Client Say # %s", buf);
         }
         recvfrom(sock, buf, sizeof(buf), 0, (struct sockaddr *)&loc_addr, &len);
-        printf("Server Say # %s.\n", buf);
+        printf("Server Say # %s", buf);
     }
     close(sock);
     return 0;

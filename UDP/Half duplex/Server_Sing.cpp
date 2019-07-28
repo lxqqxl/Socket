@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         if (s > 0)
         {
             buf[s] = 0;
-            printf("Client Say # %s.\n", buf);
+            printf("Client Say # %s", buf);
         }
         if (s == 0)
         {
